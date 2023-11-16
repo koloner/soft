@@ -2,7 +2,7 @@
 apt-get update && apt-get upgrade -y
 
 # Install necessary dependencies.
-apt-get install build-essential && apt-get install net-tools
+apt-get install build-essential -y && apt-get install net-tools -y
 
 #Download the latest version of SoftEther. (Latest at the time of this writing)
 wget https://www.softether-download.com/files/softether/v4.42-9798-rtm-2023.06.30-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.42-9798-rtm-2023.06.30-linux-x64-64bit.tar.gz
