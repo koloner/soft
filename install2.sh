@@ -24,6 +24,6 @@ chmod 700 vpnserver
 
 # Perform a final check to see whether VPN Server can operate properly on your computer system before starting vpnserver. Then exit the test.
 ./vpncmd
-1
+3
 check
 exit
