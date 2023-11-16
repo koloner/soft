@@ -12,8 +12,7 @@ make
 cd ..
 sudo mv vpnserver /opt/softether
 sudo /opt/softether/vpnserver start
-sudo nano /etc/systemd/system/softether-vpnserver.service
-# file data
+sudo cat >> /etc/systemd/system/softether-vpnserver.service << EOF
 [Unit]
 
 Description=SoftEther VPN server
@@ -33,4 +32,4 @@ ExecReload=/bin/kill -HUP $MAINPID
 [Install]
 
 WantedBy=multi-user.target
-# end file data
+EOF
