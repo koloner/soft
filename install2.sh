@@ -1,82 +1,50 @@
-# Log in using PuTTy. We’ll start with updating our server.
+#!/bin/bash
+
+# Update and upgrade the server
 apt-get update && apt-get upgrade -y
 
-# Install necessary dependencies.
-apt-get install build-essential -y && apt-get install net-tools -y
+# Install necessary dependencies
+apt-get install -y build-essential net-tools
 
-#Download the latest version of SoftEther. (Latest at the time of this writing)
+# Download and extract the latest version of SoftEther
 wget https://www.softether-download.com/files/softether/v4.42-9798-rtm-2023.06.30-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.42-9798-rtm-2023.06.30-linux-x64-64bit.tar.gz
-
-#Extract the installer. You can autocomplete the line by pressing “Tab” when typing “softether”.
 tar xvf softether-vpnserver-*.tar.gz
 
-#Navigate to new directory and install SoftEther.
+# Install SoftEther
 cd vpnserver
 make
+cd ..
 
-# Go back to your home directory, move the extracted directory to /usr/local directory, navigate to the new vpnserver location, and set the permissions of it.
-cd ../
+# Move SoftEther to /usr/local and set permissions
 mv vpnserver /usr/local
 cd /usr/local/vpnserver/
 chmod 600 *
-chmod 700 vpncmd
-chmod 700 vpnserver
+chmod 700 vpncmd vpnserver
 
-# Perform a final check to see whether VPN Server can operate properly on your computer system before starting vpnserver. Then exit the test.
+# Check if VPN Server can operate properly
 ./vpncmd
 3
 check
 exit
-# Create a systemd service file to manage the SoftEther VPN service.
-sudo cat >> /etc/init.d/vpnserver << EOF
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides: myscript
-# Required-Start:
-# Required Stop:
-# Default-Start: 2 3 4 5
-# Default Stop: 1 0 6
-# Short-Description: simple description.
-### END INIT INFO
-# chkconfig: 2345 99 01
-# description: SoftEther VPN Server
-DAEMON=/usr/local/vpnserver/vpnserver
-LOCK=/var/lock/subsys/vpnserver
-test -x $DAEMON || exit 0
-case "$1" in
-start)
-$DAEMON start
-touch $LOCK
-;;
-stop)
-$DAEMON stop
-rm $LOCK
-;;
-restart)
-$DAEMON stop
-sleep 3
-$DAEMON start
-;;
-*)
-echo "Usage: $0 {start|stop|restart}"
-exit 1
-esac
-exit 0
+
+# Create systemd service file for SoftEther VPN
+cat << EOF | sudo tee /etc/systemd/system/vpnserver.service
+[Unit]
+Description=SoftEther VPN Server
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/vpnserver/vpnserver start
+ExecStop=/usr/local/vpnserver/vpnserver stop
+ExecReload=/usr/local/vpnserver/vpnserver restart
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
-chmod 755 /etc/init.d/vpnserver
-
-update-rc.d vpnserver defaults
-
-/etc/init.d/vpnserver start
-
-
-
-
-
-
-
-
-
-
-
+# Reload systemd and start SoftEther VPN service
+sudo systemctl daemon-reload
+sudo systemctl enable vpnserver.service
+sudo systemctl start vpnserver.service
