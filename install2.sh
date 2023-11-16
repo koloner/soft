@@ -27,3 +27,56 @@ chmod 700 vpnserver
 3
 check
 exit
+# Create a systemd service file to manage the SoftEther VPN service.
+sudo cat >> /etc/init.d/vpnserver << EOF
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: myscript
+# Required-Start:
+# Required Stop:
+# Default-Start: 2 3 4 5
+# Default Stop: 1 0 6
+# Short-Description: simple description.
+### END INIT INFO
+# chkconfig: 2345 99 01
+# description: SoftEther VPN Server
+DAEMON=/usr/local/vpnserver/vpnserver
+LOCK=/var/lock/subsys/vpnserver
+test -x $DAEMON || exit 0
+case "$1" in
+start)
+$DAEMON start
+touch $LOCK
+;;
+stop)
+$DAEMON stop
+rm $LOCK
+;;
+restart)
+$DAEMON stop
+sleep 3
+$DAEMON start
+;;
+*)
+echo "Usage: $0 {start|stop|restart}"
+exit 1
+esac
+exit 0
+EOF
+
+chmod 755 /etc/init.d/vpnserver
+
+update-rc.d vpnserver defaults
+
+/etc/init.d/vpnserver start
+
+
+
+
+
+
+
+
+
+
+
